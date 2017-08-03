@@ -6,100 +6,67 @@
 package main;
 
 import java.awt.Point;
-import static java.lang.Math.*;
-import java.util.Random;
+import java.util.Arrays;
 
 /**
  *
- * @author User
+ * @author joshua
  */
 public class Snake {
-    public int getMove (String[][] map, Point myHead, GameMap myMap) {
-        boolean safe = false;
-        int move = 0;
-        Point target = new Point();
-        
-        if (minDistance(myHead, myMap)) {
-            if (myMap.apple1.x!=-1) {
-                target.x = myMap.apple1.x;
-                target.y = myMap.apple1.y;
-            } else {
-                target.x = myMap.apple2.x;
-                target.y = myMap.apple2.y;
+
+    String state;
+    int length;
+    int kills;
+    int invisT;
+    Point [] body;
+    
+    public Snake(String [] snakeData) {
+        if (snakeData[0].equals("alive") || snakeData[0].equals("dead")) {
+            this.state = snakeData [0];
+            this.length = Integer.parseInt(snakeData[1]);
+            this.kills = Integer.parseInt(snakeData[2]);
+            this.invisT = 0;
+            String [] strBody = Arrays.copyOfRange(snakeData, 3, snakeData.length);
+            this.body = new Point[strBody.length];
+            for (int i = 0; i < strBody.length; i++) {
+                String [] strPoint = strBody[i].split(",");
+                this.body[i] = new Point();
+                this.body[i].x = Integer.parseInt(strPoint[1]);
+                this.body[i].y = Integer.parseInt(strPoint[0]);
             }
-            move = astar(myHead, target, map);
-        } 
-        
-        while (safe == false) {
-            switch (move) {
-                case 0 :
-                        System.out.println("log" + myHead.y);
-                        if (myHead.y-1>-1&&(map[myHead.y-1][myHead.x].equals(" ")||map[myHead.y-1][myHead.x].equals("*"))) {
-                            safe = true;
-                        } else {
-                            move = 1;
-                        }
-                    break;
-                case 1 :
-                        if (myHead.y+1<50&&(map[myHead.y+1][myHead.x].equals(" ")||map[myHead.y+1][myHead.x].equals("*"))) {
-                            safe = true;
-                        } else {
-                            move = 2;
-                        }
-                    break;
-                case 2 :
-                        if (myHead.x-1>-1&&(map[myHead.y][myHead.x-1].equals(" ") || map[myHead.y][myHead.x-1].equals("*"))) {
-                            safe = true;
-                        } else {
-                            move = 3;
-                        }
-                    break;
-                case 3 :
-                        if (myHead.x+1<50&&(map[myHead.y][myHead.x+1].equals(" ") || map[myHead.y][myHead.x+1].equals("*"))) {
-                            safe = true;
-                        } else {
-                            move = 0;
-                        }
-                    break;
-                default : move = 2;
-                          safe = true;
-                    break;
+        } else if (snakeData[0].equals("invisible")) {
+            this.state = snakeData[0];
+            this.length = Integer.parseInt(snakeData[1]);
+            this.kills = Integer.parseInt(snakeData[2]);
+            this.invisT = Integer.parseInt(snakeData[3]);
+            String [] strBody = Arrays.copyOfRange(snakeData, 4, snakeData.length);
+            this.body = new Point[strBody.length];
+            for (int i = 0; i < strBody.length; i++) {
+                String [] strPoint = strBody[i].split(",");
+                this.body[i] = new Point();
+                this.body[i].x = Integer.parseInt(strPoint[1]);
+                this.body[i].y = Integer.parseInt(strPoint[0]);
             }
         }
-        return move;
-    }
-    public boolean minDistance (Point myHead, GameMap myMap) {
-        boolean safe = false;
-        Point apple = new Point();
-        if (myMap.apple1.x!=-1) {
-            apple.x = myMap.apple1.x;
-            apple.y = myMap.apple1.y;
-        } else {
-            apple.x = myMap.apple2.x;
-            apple.y = myMap.apple2.y;
-        }
-       
-        double myDistance = sqrt(pow((apple.x-myHead.x),2)+pow((apple.y-myHead.y),2));
-        
-        Point [] heads = new Point[3];
-        heads = myMap.heads;
-        double minD = myDistance;
-        
-        for (int i = 0; i < 3; i++) {
-            double currD = sqrt(pow((apple.x-heads[i].x),2)+pow((apple.y-heads[i].y),2));
-            if (currD < minD) {
-                minD = currD;
-            } else {}
-        }
-        
-        if (minD == myDistance) {
-            safe = true;
-        }
-        
-        return safe;
     }
     
-    public int astar(Point myHead, Point target, String[][] map) {
-        return 0;
+    public int snakeMove(map thisMap, Point apple) {
+        
+        Point head = this.body[0];
+        
+        if (head.x > apple.x && (thisMap.gameMap[head.x-1][head.y]==' '||thisMap.gameMap[head.x-1][head.y]=='*')) {
+            return 0;
+        }
+        if (head.x < apple.x && (thisMap.gameMap[head.x+1][head.y]==' '||thisMap.gameMap[head.x+1][head.y]=='*')) {
+            return 1;
+        }
+        if (head.y > apple.y && (thisMap.gameMap[head.x][head.y+1]==' '||thisMap.gameMap[head.x][head.y+1]=='*')) {
+            return 2;
+        }
+        if (head.y < apple.y && (thisMap.gameMap[head.x][head.y-1]==' '||thisMap.gameMap[head.x][head.y-1]=='*')) {
+            return 3;
+        }
+        return 2;
     }
+    
 }
